@@ -4,10 +4,12 @@ const mongoose = require("mongoose");
 const port = 8080;
 const Listing = require("../Zariya/models/listing.js");
 const path = require('path');
+const methodOverride = require('method-override');
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({extended: true}));
+app.use(methodOverride("_method"));
 
 
 main()
@@ -40,11 +42,33 @@ app.post("/listings", async (req, res) => {
   res.redirect("/listings");
 })
 
+// edit route
+app.get("/listings/:id/edit", async (req, res) => {
+  let {id} = req.params;
+  let listing = await Listing.findById(id);
+  res.render("listing/edit.ejs", {listing});
+})
+
+// update route
+app.put("/listings/:id", async (req, res) => {
+  let {id} = req.params;
+  await Listing.findByIdAndUpdate(id, {...req.body.listing});
+  res.redirect(`/listings/${id}`);
+})
+
+// delete route
+app.delete("/listings/:id", async (req, res) => {
+  let {id} = req.params;
+  let deletedListing = await Listing.findByIdAndDelete(id);
+  console.log(deletedListing);
+  res.redirect("/listings");
+})
+
 // show route
 app.get("/listings/:id", async (req, res) => {
   let {id} = req.params;
   let listing = await Listing.findById(id);
-  res.render("listing/show.ejs", {listing})
+  res.render("listing/show.ejs", {listing});
 })
 
 // sample testing

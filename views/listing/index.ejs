@@ -11,6 +11,7 @@
         <form action="/listings/new" method="get">
             <button>Add a new Property</button>
         </form>
+        <br><br>
         <% for(listings of allListings){ %>
             <li><a href="/listings/<%= listings._id %>"><%= listings.title %></a></li>
         <% } %>
