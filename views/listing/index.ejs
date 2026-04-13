@@ -2,11 +2,13 @@
 <body>
     <ul>
         <h3>All Listings</h3>
-        <form action="/listings/new" method="get">
+        <!-- <form action="/listings/new" method="get">
             <button>Add a new Property</button>
-        </form>
+        </form> -->
         <br><br>
         <% for(listings of allListings){ %>
+            <li><a href="/listings/<%= listings._id %>"><%= listings.title %></a></li>
+            <li><a href="/listings/<%= listings._id %>"><%= listings.title %></a></li>
             <li><a href="/listings/<%= listings._id %>"><%= listings.title %></a></li>
         <% } %>
     </ul>
