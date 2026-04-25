@@ -31,6 +31,16 @@ app.get("/", (req, res) => {
   res.send("Hi, I'm root");
 });
 
+const validateListing = (req, res, next) => {
+  let {error} = listingSchema.validate(req.body);
+  if(error){
+    let errMsg = error.details.map((el) => el.message).join(", ");
+    throw new ExpressError(400, errMsg);
+  } else {
+    next();
+  }
+};
+
 // index route
 app.get("/listings", wrapAsync(async (req, res) => {
     let allListings = await Listing.find({});
@@ -43,28 +53,21 @@ app.get("/listings/new", (req, res) => {
 });
 
 // create route
-app.post("/listings", wrapAsync(async (req, res, next) => {
-  let result = listingSchema.validate(req.body);
-  console.log(result);
-
-  if(result.error){
-    throw new ExpressError(400, result.error);
-  }
-  
+app.post("/listings", validateListing, wrapAsync(async (req, res, next) => {
   let newListing = new Listing(req.body.listing);
   await newListing.save();
   res.redirect("/listings");
 }));
 
 // edit route
-app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
+app.get("/listings/:id/edit", validateListing, wrapAsync(async (req, res) => {
   let {id} = req.params;
   let listing = await Listing.findById(id);
   res.render("listing/edit.ejs", {listing});
 }));
 
 // update route
-app.put("/listings/:id", wrapAsync(async (req, res) => {
+app.put("/listings/:id",validateListing, wrapAsync(async (req, res) => {
   let {id} = req.params;
   await Listing.findByIdAndUpdate(id, {...req.body.listing});
   res.redirect(`/listings/${id}`);
