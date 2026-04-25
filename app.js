@@ -9,9 +9,10 @@ const ejsMate = require('ejs-mate');
 const wrapAsync = require('./utils/wrapAsync.js');
 const ExpressError = require('./utils/ExpressError.js');
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use(express.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
@@ -42,12 +43,25 @@ app.get("/listings/new", (req, res) => {
 
 // create route
 app.post("/listings", wrapAsync(async (req, res, next) => {
-  if(!req.body || !req.body.listing){
+  if (!req.body || !req.body.listing) {
     throw new ExpressError(400, "Send valid data for testing");
   }
-    let newListing = await new Listing(req.body.listing);
-    await newListing.save();
-    res.redirect("/listings");
+
+  let newListing = new Listing(req.body.listing);
+  if(!newListing.title){
+    throw new ExpressError(400, "title is required!");
+  }
+  if(!newListing.description){
+    throw new ExpressError(400, "description is required!");
+  }
+  if(!newListing.country){
+    throw new ExpressError(400, "country is required!");
+  }
+  if(!newListing.location){
+    throw new ExpressError(400, "location is required!");
+  }
+  await newListing.save();
+  res.redirect("/listings");
 }));
 
 // edit route
